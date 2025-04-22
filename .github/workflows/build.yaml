@@ -10,7 +10,7 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: windows-2019
+    runs-on: windows-2022
     env:
       RUNNER_VERSION: 2.311.0
 

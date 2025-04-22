@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/windows/servercore:ltsc2025
+FROM mcr.microsoft.com/windows/servercore:ltsc2022
 LABEL name=arc-runner-windows
 
 # The "PLATFORM" argument is created to allow injecting it into the
