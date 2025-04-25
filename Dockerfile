@@ -21,6 +21,8 @@ RUN \
 
 RUN Invoke-WebRequest -Uri https://dot.net/v1/dotnet-install.ps1 -Outfile dotnet-install.ps1
 RUN powershell ./dotnet-install.ps1
+RUN dotnet-install.ps1 -Runtime windowsdesktop
+RUN dotnet-install.ps1 -Runtime aspnetcore
 
 # Get Git and Linux tools
 RUN powershell Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
