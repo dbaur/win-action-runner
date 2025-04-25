@@ -9,17 +9,17 @@ on:
       - main
 
 jobs:
-  strategy:
-    matrix:
-      include:
-        - runner: windows-2019
-          tag: ltsc2010
-        - runner: windows-2022
-          tag: ltsc2022
-        - runner: windows-2025
-          tag: ltsc2025
-
   build-and-deploy:
+    strategy:
+      matrix:
+        include:
+          - runner: windows-2019
+            tag: ltsc2010
+          - runner: windows-2022
+            tag: ltsc2022
+          - runner: windows-2025
+            tag: ltsc2025
+
     runs-on: ${{ matrix.runner }}
     env:
       RUNNER_VERSION: 2.311.0
