@@ -9,8 +9,18 @@ on:
       - main
 
 jobs:
+  strategy:
+    matrix:
+      include:
+        - runner: windows-2019
+          tag: ltsc2010
+        - runner: windows-2022
+          tag: ltsc2022
+        - runner: windows-2025
+          tag: ltsc2025
+
   build-and-deploy:
-    runs-on: windows-2022
+    runs-on: ${{ matrix.runner }}
     env:
       RUNNER_VERSION: 2.311.0
 
@@ -26,7 +36,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build the Dockerfile
-        run: docker build -t ghcr.io/dbaur/win-action-runner:${{ github.ref_name }} --build-arg RUNNER_VERSION=${{env.RUNNER_VERSION}} .
+        run: docker build -t ghcr.io/dbaur/win-action-runner:${{ matrix.os }} --build-arg RUNNER_VERSION=${{env.RUNNER_VERSION}} --build-arg TAG=${{matrix.tag}}.
 
       - name: Push to GitHub Container Registry
-        run: docker push ghcr.io/dbaur/win-action-runner:${{ github.ref_name }}
+        run: docker push ghcr.io/dbaur/win-action-runner:${{ matrix.os }}
