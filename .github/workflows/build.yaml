@@ -14,7 +14,7 @@ jobs:
       matrix:
         include:
           - runner: windows-2019
-            tag: ltsc2010
+            tag: ltsc2019
           - runner: windows-2022
             tag: ltsc2022
           - runner: windows-2025
