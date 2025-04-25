@@ -17,6 +17,8 @@ jobs:
             tag: ltsc2022
           - runner: windows-2025
             tag: ltsc2025
+          - runner: windows-2019
+            tag: ltsc2019     
 
     runs-on: ${{ matrix.runner }}
     env:
