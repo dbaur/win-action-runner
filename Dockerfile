@@ -1,5 +1,5 @@
 ARG TAG=ltsc2022
-FROM mcr.microsoft.com/windows/servercore:${TAG}
+FROM mcr.microsoft.com/dotnet/runtime:${TAG}
 LABEL name=arc-runner-windows
 
 # The "PLATFORM" argument is created to allow injecting it into the
@@ -18,11 +18,6 @@ RUN \
     Add-Type -AssemblyName System.IO.Compression.FileSystem ; \
     [System.IO.Compression.ZipFile]::ExtractToDirectory('actions-runner-win.zip', $PWD) ;\
     rm actions-runner-win.zip
-
-RUN Invoke-WebRequest -Uri https://dot.net/v1/dotnet-install.ps1 -Outfile dotnet-install.ps1
-RUN powershell ./dotnet-install.ps1
-RUN powershell ./dotnet-install.ps1 -Runtime windowsdesktop
-RUN powershell ./dotnet-install.ps1 -Runtime aspnetcore
 
 # Get Git and Linux tools
 RUN powershell Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
