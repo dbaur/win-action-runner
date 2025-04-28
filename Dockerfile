@@ -1,5 +1,5 @@
 ARG TAG=ltsc2022
-FROM mcr.microsoft.com/dotnet/runtime:${TAG}
+FROM mcr.microsoft.com/dotnet/framework/runtime:${TAG}
 LABEL name=arc-runner-windows
 
 # The "PLATFORM" argument is created to allow injecting it into the
