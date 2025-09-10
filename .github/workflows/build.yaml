@@ -35,7 +35,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build the Dockerfile
-        run: docker build -t ghcr.io/dbaur/win-action-runner:${{ matrix.runner }}-$RUNNER_VERSION --build-arg RUNNER_VERSION=${{env.RUNNER_VERSION}} --build-arg TAG=${{matrix.tag}} .
+        run: docker build -t ghcr.io/dbaur/win-action-runner:${{ matrix.runner }}-${{env.RUNNER_VERSION}} --build-arg RUNNER_VERSION=${{env.RUNNER_VERSION}} --build-arg TAG=${{matrix.tag}} .
 
       - name: Push to GitHub Container Registry
-        run: docker push ghcr.io/dbaur/win-action-runner:${{ matrix.runner }}-$RUNNER_VERSION
+        run: docker push ghcr.io/dbaur/win-action-runner:${{ matrix.runner }}-${{env.RUNNER_VERSION}}
