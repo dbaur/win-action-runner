@@ -12,8 +12,10 @@ WORKDIR /actions-runner
 
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop';$ProgressPreference='silentlyContinue';"]
 
-RUN Invoke-WebRequest -Uri "http://dp1.liebherr.com/LiebherrRootCA2.crt" -OutFile LiebherrRootCA2.crt ; \
-RUN Invoke-WebRequest -Uri "http://dp1.liebherr.com/LiebherrEnterpriseCA02.crt" -OutFile LiebherrEnterpriseCA02.crt ; \
+RUN Invoke-WebRequest -Uri "http://dp1.liebherr.com/LiebherrRootCA2.crt" -OutFile LiebherrRootCA2.crt
+RUN Invoke-WebRequest -Uri "http://dp1.liebherr.com/LiebherrEnterpriseCA02.crt" -OutFile LiebherrEnterpriseCA02.crt
+RUN Import-Certificate -FilePath "LiebherrRootCA2.crt" -CertStoreLocation Cert:\LocalMachine\Root
+
 
 # Get Action runner.
 RUN \
