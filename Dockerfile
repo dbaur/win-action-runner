@@ -12,6 +12,9 @@ WORKDIR /actions-runner
 
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop';$ProgressPreference='silentlyContinue';"]
 
+RUN Invoke-WebRequest -Uri "http://dp1.liebherr.com/LiebherrRootCA2.crt" -OutFile LiebherrRootCA2.crt ; \
+RUN Invoke-WebRequest -Uri "http://dp1.liebherr.com/LiebherrEnterpriseCA02.crt" -OutFile LiebherrEnterpriseCA02.crt ; \
+
 # Get Action runner.
 RUN \
     Invoke-WebRequest -Uri https://github.com/actions/runner/releases/download/v${env:RUNNER_VERSION}/actions-runner-win-x64-${env:RUNNER_VERSION}.zip -OutFile actions-runner-win.zip ; \
