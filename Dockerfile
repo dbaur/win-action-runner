@@ -5,7 +5,7 @@ LABEL name=arc-runner-windows
 # The "PLATFORM" argument is created to allow injecting it into the
 # build environment.
 # In this we can share the build scripts between X64 and ARM64.
-ARG RUNNER_VERSION=2.311.0
+ARG RUNNER_VERSION=2.330.0
 ENV RUNNER_VERSION=$RUNNER_VERSION
 
 WORKDIR /actions-runner
