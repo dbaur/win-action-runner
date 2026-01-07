@@ -21,7 +21,7 @@ jobs:
 
     runs-on: ${{ matrix.runner }}
     env:
-      RUNNER_VERSION: 2.328.0
+      RUNNER_VERSION: 2.330.0
 
     steps:
       - name: Checkout source code
