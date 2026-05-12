@@ -41,6 +41,7 @@ RUN powershell choco install vcredist140 -y
 # Install Visual Studio Build Tools using the official Microsoft bootstrapper.
 # Keep the runner image entrypoint unchanged; the Microsoft sample ENTRYPOINT is for
 # interactive Build Tools containers and would otherwise replace your runner startup.
+# docs: https://learn.microsoft.com/en-us/visualstudio/install/build-tools-container?view=vs-2022
 SHELL ["cmd", "/S", "/C"]
 RUN curl -SL --output vs_buildtools.exe https://aka.ms/vs/17/release/vs_buildtools.exe \
     && (start /w vs_buildtools.exe --quiet --wait --norestart --nocache \
