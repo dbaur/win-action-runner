@@ -37,4 +37,21 @@ RUN powershell choco feature enable -n allowGlobalConfirmation
 
 # Pre-install native build prerequisites for Rust (MSVC toolchain)
 RUN powershell choco install vcredist140 -y
-RUN choco install visualstudio2022buildtools -y --execution-timeout=0 --package-parameters "'--add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --passive --norestart'"
+
+# Install Visual Studio Build Tools using the official Microsoft bootstrapper.
+# Keep the runner image entrypoint unchanged; the Microsoft sample ENTRYPOINT is for
+# interactive Build Tools containers and would otherwise replace your runner startup.
+SHELL ["cmd", "/S", "/C"]
+RUN curl -SL --output vs_buildtools.exe https://aka.ms/vs/17/release/vs_buildtools.exe \
+    && (start /w vs_buildtools.exe --quiet --wait --norestart --nocache \
+        --installPath "%ProgramFiles(x86)%\Microsoft Visual Studio\2022\BuildTools" \
+        --add Microsoft.VisualStudio.Workload.VCTools \
+        --includeRecommended \
+        --remove Microsoft.VisualStudio.Component.Windows10SDK.10240 \
+        --remove Microsoft.VisualStudio.Component.Windows10SDK.10586 \
+        --remove Microsoft.VisualStudio.Component.Windows10SDK.14393 \
+        --remove Microsoft.VisualStudio.Component.Windows81SDK \
+        || IF "%ERRORLEVEL%"=="3010" EXIT 0) \
+    && del /q vs_buildtools.exe \
+
+SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop';$ProgressPreference='silentlyContinue';"]
