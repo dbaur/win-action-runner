@@ -1,0 +1,138 @@
+name: Test Container Contents
+
+on:
+  pull_request:
+    branches:
+      - main
+  # Allow manual trigger for quick testing
+  workflow_dispatch:
+
+jobs:
+  test-image:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: windows-2022
+            tag: 4.8.1-windowsservercore-ltsc2022
+          - runner: windows-2025
+            tag: 4.8.1-windowsservercore-ltsc2025
+
+    runs-on: ${{ matrix.runner }}
+    env:
+      RUNNER_VERSION: 2.331.0
+      IMAGE_NAME: ghcr.io/FRules/win-action-runner:${{ matrix.runner }}-2.331.0
+
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull container image
+        run: docker pull "${{ env.IMAGE_NAME }}"
+
+      - name: Test Visual C++ Redistributable (vcredist140)
+        run: |
+          docker run --rm "${{ env.IMAGE_NAME }}" powershell -Command {
+            $vcredist = Get-Item "C:\Windows\System32\msvcp140.dll" -ErrorAction SilentlyContinue
+            if ($vcredist) {
+              Write-Host "✓ vcredist140 is installed: $($vcredist.FullName)"
+              exit 0
+            } else {
+              Write-Host "✗ vcredist140 NOT found"
+              exit 1
+            }
+          }
+
+      - name: Test Visual Studio Build Tools (MSVC compiler & linker)
+        run: |
+          docker run --rm "${{ env.IMAGE_NAME }}" cmd /S /C {
+            where cl.exe >nul 2>&1
+            if %errorlevel% equ 0 (
+              echo ✓ MSVC compiler (cl.exe) is available
+              cl.exe
+            ) else (
+              echo ✗ MSVC compiler (cl.exe) NOT found
+              exit /b 1
+            )
+          }
+
+      - name: Test Visual Studio Build Tools - Linker
+        run: |
+          docker run --rm "${{ env.IMAGE_NAME }}" cmd /S /C {
+            where link.exe >nul 2>&1
+            if %errorlevel% equ 0 (
+              echo ✓ MSVC linker (link.exe) is available
+              link.exe /?
+            ) else (
+              echo ✗ MSVC linker (link.exe) NOT found
+              exit /b 1
+            )
+          }
+
+      - name: Test Git installation
+        run: |
+          docker run --rm "${{ env.IMAGE_NAME }}" powershell -Command {
+            $git = Get-Command git -ErrorAction SilentlyContinue
+            if ($git) {
+              Write-Host "✓ Git is installed: $($git.Source)"
+              git --version
+            } else {
+              Write-Host "✗ Git NOT found"
+              exit 1
+            }
+          }
+
+      - name: Test Azure CLI installation
+        run: |
+          docker run --rm "${{ env.IMAGE_NAME }}" powershell -Command {
+            $az = Get-Command az -ErrorAction SilentlyContinue
+            if ($az) {
+              Write-Host "✓ Azure CLI is installed: $($az.Source)"
+              az version
+            } else {
+              Write-Host "✗ Azure CLI NOT found"
+              exit 1
+            }
+          }
+
+      - name: Test Actions Runner is present
+        run: |
+          docker run --rm "${{ env.IMAGE_NAME }}" powershell -Command {
+            $runner = Get-Item "C:\actions-runner" -ErrorAction SilentlyContinue
+            if ($runner) {
+              Write-Host "✓ Actions Runner is installed at: $($runner.FullName)"
+              Get-ChildItem "C:\actions-runner" | Select-Object Name
+            } else {
+              Write-Host "✗ Actions Runner NOT found"
+              exit 1
+            }
+          }
+
+      - name: Test image can start (basic sanity check)
+        run: |
+          docker run --rm "${{ env.IMAGE_NAME }}" powershell -Command {
+            Write-Host "✓ Container started successfully and PowerShell is responsive"
+            $PSVersionTable.PSVersion
+          }
+
+      - name: Summary
+        if: success()
+        run: |
+          Write-Host "✓ All container tests passed for ${{ matrix.runner }}"
+          Write-Host "Image: ${{ env.IMAGE_NAME }}"
+          Write-Host ""
+          Write-Host "Installed components:"
+          Write-Host "  - Visual C++ Redistributable (vcredist140)"
+          Write-Host "  - Visual Studio Build Tools 2022 (MSVC compiler & linker)"
+          Write-Host "  - Git"
+          Write-Host "  - Azure CLI"
+          Write-Host "  - GitHub Actions Runner"
+
