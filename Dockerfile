@@ -5,7 +5,7 @@ LABEL name=arc-runner-windows
 # The "PLATFORM" argument is created to allow injecting it into the
 # build environment.
 # In this we can share the build scripts between X64 and ARM64.
-ARG RUNNER_VERSION=2.330.0
+ARG RUNNER_VERSION=2.334.0
 ENV RUNNER_VERSION=$RUNNER_VERSION
 
 WORKDIR /actions-runner
@@ -34,3 +34,25 @@ RUN \
   $ProgressPreference = 'SilentlyContinue'; Invoke-WebRequest -Uri https://aka.ms/installazurecliwindows -OutFile .\AzureCLI.msi; Start-Process msiexec.exe -Wait -ArgumentList '/I AzureCLI.msi /quiet'; Remove-Item .\AzureCLI.msi
 
 RUN powershell choco feature enable -n allowGlobalConfirmation
+
+# Pre-install native build prerequisites for Rust (MSVC toolchain)
+RUN powershell choco install vcredist140 -y
+
+# Install Visual Studio Build Tools using the official Microsoft bootstrapper.
+# Keep the runner image entrypoint unchanged; the Microsoft sample ENTRYPOINT is for
+# interactive Build Tools containers and would otherwise replace your runner startup.
+# docs: https://learn.microsoft.com/en-us/visualstudio/install/build-tools-container?view=vs-2022
+SHELL ["cmd", "/S", "/C"]
+RUN curl -SL --output vs_buildtools.exe https://aka.ms/vs/17/release/vs_buildtools.exe \
+    && (start /w vs_buildtools.exe --quiet --wait --norestart --nocache \
+        --installPath "%ProgramFiles(x86)%\Microsoft Visual Studio\2022\BuildTools" \
+        --add Microsoft.VisualStudio.Workload.VCTools \
+        --includeRecommended \
+        --remove Microsoft.VisualStudio.Component.Windows10SDK.10240 \
+        --remove Microsoft.VisualStudio.Component.Windows10SDK.10586 \
+        --remove Microsoft.VisualStudio.Component.Windows10SDK.14393 \
+        --remove Microsoft.VisualStudio.Component.Windows81SDK \
+        || IF "%ERRORLEVEL%"=="3010" EXIT 0) \
+    && del /q vs_buildtools.exe \
+
+SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop';$ProgressPreference='silentlyContinue';"]
