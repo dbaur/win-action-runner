@@ -8,6 +8,10 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   build-and-deploy:
     strategy:
@@ -21,7 +25,7 @@ jobs:
 
     runs-on: ${{ matrix.runner }}
     env:
-      RUNNER_VERSION: 2.330.0
+      RUNNER_VERSION: 2.331.0
 
     steps:
       - name: Checkout source code
@@ -35,7 +39,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build the Dockerfile
-        run: docker build -t ghcr.io/dbaur/win-action-runner:${{ matrix.runner }}-${{env.RUNNER_VERSION}} --build-arg RUNNER_VERSION=${{env.RUNNER_VERSION}} --build-arg TAG=${{matrix.tag}} .
+        run: docker build -t ghcr.io/FRules/win-action-runner:${{ matrix.runner }}-${{env.RUNNER_VERSION}} --build-arg RUNNER_VERSION=${{env.RUNNER_VERSION}} --build-arg TAG=${{matrix.tag}} .
 
       - name: Push to GitHub Container Registry
-        run: docker push ghcr.io/dbaur/win-action-runner:${{ matrix.runner }}-${{env.RUNNER_VERSION}}
+        run: docker push ghcr.io/FRules/win-action-runner:${{ matrix.runner }}-${{env.RUNNER_VERSION}}
