@@ -34,3 +34,7 @@ RUN \
   $ProgressPreference = 'SilentlyContinue'; Invoke-WebRequest -Uri https://aka.ms/installazurecliwindows -OutFile .\AzureCLI.msi; Start-Process msiexec.exe -Wait -ArgumentList '/I AzureCLI.msi /quiet'; Remove-Item .\AzureCLI.msi
 
 RUN powershell choco feature enable -n allowGlobalConfirmation
+
+# Pre-install native build prerequisites for Rust (MSVC toolchain)
+RUN powershell choco install vcredist140 -y
+RUN powershell choco install visualstudio2022buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --passive --norestart" -y --execution-timeout=0
