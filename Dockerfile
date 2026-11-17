@@ -34,7 +34,7 @@ RUN \
     $msi = 'PowerShell-7.6.6-win-x64.msi'; \
     Invoke-WebRequest -Uri "https://github.com/PowerShell/PowerShell/releases/download/v7.6.6/$msi" -OutFile $msi; \
     if ((Get-FileHash -Path $msi -Algorithm SHA256).Hash -ne '958838FF55091E1C8705D89EFED0CC7E8245A3A6EF6C0CCFAE20015227108AD8') { throw 'PowerShell MSI checksum verification failed.' }; \
-    $installer = Start-Process msiexec.exe -Wait -PassThru -ArgumentList "/package $msi /quiet ADD_PATH=1 DISABLE_TELEMETRY=1"; \
+    $installer = Start-Process msiexec.exe -Wait -PassThru -ArgumentList '/package PowerShell-7.6.6-win-x64.msi /quiet ADD_PATH=1 DISABLE_TELEMETRY=1'; \
     if ($installer.ExitCode -ne 0) { throw "PowerShell installation failed with exit code $($installer.ExitCode)." }; \
     Remove-Item $msi
 
