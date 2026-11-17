@@ -1,11 +1,11 @@
-ARG TAG=ltsc2022
+ARG TAG=4.8.1-windowsservercore-ltsc2025
 FROM mcr.microsoft.com/dotnet/framework/runtime:${TAG}
 LABEL name=arc-runner-windows
 
 # The "PLATFORM" argument is created to allow injecting it into the
 # build environment.
 # In this we can share the build scripts between X64 and ARM64.
-ARG RUNNER_VERSION=2.330.0
+ARG RUNNER_VERSION=2.338.2
 ENV RUNNER_VERSION=$RUNNER_VERSION
 
 WORKDIR /actions-runner

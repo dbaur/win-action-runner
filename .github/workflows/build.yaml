@@ -14,14 +14,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - runner: windows-2022
-            tag: 4.8.1-windowsservercore-ltsc2022
           - runner: windows-2025
             tag: 4.8.1-windowsservercore-ltsc2025
 
     runs-on: ${{ matrix.runner }}
     env:
-      RUNNER_VERSION: 2.330.0
+      RUNNER_VERSION: 2.338.2
 
     steps:
       - name: Checkout source code
