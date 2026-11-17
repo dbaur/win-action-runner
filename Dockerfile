@@ -29,8 +29,19 @@ RUN powershell Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.Ser
 
 RUN powershell choco install git.install --params "'/GitAndUnixToolsOnPath'" -y
 
+# Install PowerShell 7 alongside Windows PowerShell.
+RUN \
+    $msi = 'PowerShell-7.6.6-win-x64.msi'; \
+    Invoke-WebRequest -Uri "https://github.com/PowerShell/PowerShell/releases/download/v7.6.6/$msi" -OutFile $msi; \
+    if ((Get-FileHash -Path $msi -Algorithm SHA256).Hash -ne '958838FF55091E1C8705D89EFED0CC7E8245A3A6EF6C0CCFAE20015227108AD8') { throw 'PowerShell MSI checksum verification failed.' }; \
+    $installer = Start-Process msiexec.exe -Wait -PassThru -ArgumentList '/package PowerShell-7.6.6-win-x64.msi /quiet ADD_PATH=1 DISABLE_TELEMETRY=1'; \
+    if ($installer.ExitCode -ne 0) { throw "PowerShell installation failed with exit code $($installer.ExitCode)." }; \
+    Remove-Item $msi
+
 # Install Azure CLI
 RUN \
   $ProgressPreference = 'SilentlyContinue'; Invoke-WebRequest -Uri https://aka.ms/installazurecliwindows -OutFile .\AzureCLI.msi; Start-Process msiexec.exe -Wait -ArgumentList '/I AzureCLI.msi /quiet'; Remove-Item .\AzureCLI.msi
 
 RUN powershell choco feature enable -n allowGlobalConfirmation
+
+RUN pwsh -NoLogo -NoProfile -Command '$PSVersionTable.PSVersion; if ($PSVersionTable.PSVersion.Major -ne 7 -or $PSVersionTable.PSVersion.Minor -ne 6 -or $PSVersionTable.PSVersion.Patch -ne 6) { exit 1 }'

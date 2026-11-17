@@ -1,8 +1,8 @@
 # win-action-runner
 
 Windows x64 container image with GitHub Actions runner **2.338.2**, based on
-**Windows Server Core LTSC 2025** with .NET Framework 4.8.1. Includes Git,
-Unix command-line tools, and Azure CLI.
+**Windows Server Core LTSC 2025** with .NET Framework 4.8.1. Includes
+PowerShell 7.6.6 (`pwsh`), Git, Unix command-line tools, and Azure CLI.
 
 Build with `docker build -t win-action-runner .` using Docker in Windows
 container mode on a compatible host, such as Windows Server 2025.
