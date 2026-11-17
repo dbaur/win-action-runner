@@ -1,39 +1,18 @@
-name: Servercore Container Build and Push
+name: Windows Container Build
 
 on:
   push:
-   branches:
-     - main
+    branches:
+      - main
   pull_request:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
-  build-and-deploy:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - runner: windows-2025
-            tag: 4.8.1-windowsservercore-ltsc2025
-
-    runs-on: ${{ matrix.runner }}
-    env:
-      RUNNER_VERSION: 2.338.2
-
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build the Dockerfile
-        run: docker build -t ghcr.io/dbaur/win-action-runner:${{ matrix.runner }}-${{env.RUNNER_VERSION}} --build-arg RUNNER_VERSION=${{env.RUNNER_VERSION}} --build-arg TAG=${{matrix.tag}} .
-
-      - name: Push to GitHub Container Registry
-        run: docker push ghcr.io/dbaur/win-action-runner:${{ matrix.runner }}-${{env.RUNNER_VERSION}}
+  build:
+    uses: ./.github/workflows/image.yaml
+    with:
+      ref: ${{ github.sha }}

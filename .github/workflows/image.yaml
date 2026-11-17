@@ -1,0 +1,62 @@
+name: Build Windows Image
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: Commit to build
+        required: true
+        type: string
+      publish:
+        description: Publish release image tags to GHCR
+        default: false
+        type: boolean
+      version:
+        description: Release version without the v prefix
+        default: ""
+        type: string
+
+jobs:
+  image:
+    runs-on: windows-2025
+    defaults:
+      run:
+        shell: bash
+    env:
+      IMAGE: ghcr.io/${{ github.repository }}
+      RELEASE_VERSION: ${{ inputs.version }}
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Build the Dockerfile
+        run: docker build --tag "$IMAGE:ci" .
+
+      - name: Login to GitHub Container Registry
+        if: inputs.publish
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish release image tags
+        if: inputs.publish
+        run: |
+          set -euo pipefail
+          if [[ ! "$RELEASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::A stable semantic release version is required to publish."
+            exit 1
+          fi
+          runner_version=$(sed -n 's/^ARG RUNNER_VERSION=//p' Dockerfile | tr -d '\r')
+          if [[ -z "$runner_version" ]]; then
+            echo "::error::RUNNER_VERSION is missing from the Dockerfile."
+            exit 1
+          fi
+          for tag in "windows-2025-v$RELEASE_VERSION" "windows-2025-$runner_version" "windows-2025"; do
+            docker tag "$IMAGE:ci" "$IMAGE:$tag"
+            docker push "$IMAGE:$tag"
+          done
