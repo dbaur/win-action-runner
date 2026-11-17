@@ -44,4 +44,4 @@ RUN \
 
 RUN powershell choco feature enable -n allowGlobalConfirmation
 
-RUN pwsh -NoLogo -NoProfile -Command 'if ($PSVersionTable.PSVersion.ToString() -ne "7.6.6") { throw "Unexpected PowerShell version: $($PSVersionTable.PSVersion)" }'
+RUN pwsh -NoLogo -NoProfile -Command '$PSVersionTable.PSVersion; if ($PSVersionTable.PSVersion.Major -ne 7 -or $PSVersionTable.PSVersion.Minor -ne 6 -or $PSVersionTable.PSVersion.Patch -ne 6) { exit 1 }'
